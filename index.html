@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffix | AI Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0b1117; color: #e2e8f0; }
+        .dashboard-border { border: 1px solid #1e293b; background-color: #151e29; }
+        .neon-border { border: 1px solid #2dd4bf; box-shadow: 0 0 10px rgba(45, 212, 191, 0.2); }
+        .tl-light { width: 12px; height: 12px; border-radius: 50%; background-color: #1e293b; }
+        .tl-red.active { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
+        .tl-green.active { background-color: #22c55e; box-shadow: 0 0 10px #22c55e; }
+        video { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; background: #000; }
+        .tab-btn.active { color: #2dd4bf; border-bottom: 2px solid #2dd4bf; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <div id="unlock-overlay" class="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center">
+        <div class="text-center">
+            <h1 class="text-teal-400 font-black text-4xl mb-6 tracking-tighter">TRAFFIX AI</h1>
+            <button onclick="startSystem()" class="px-12 py-4 bg-teal-500 text-black font-bold rounded-full hover:scale-105 transition-all">
+                INITIALIZE STREAMS
+            </button>
+            <p class="text-gray-500 mt-4 text-xs italic">Note: Use http://localhost:8000 to view this page</p>
+        </div>
+    </div>
+
+    <header class="flex justify-between items-center px-6 py-3 dashboard-border border-b">
+        <div class="text-[10px] uppercase font-bold">Backend: <span class="text-red-500" id="status">OFFLINE</span></div>
+        <div class="text-teal-400 font-bold tracking-[0.3em] text-sm uppercase">Live Traffic Intelligence</div>
+        <div id="clock" class="font-mono text-xs text-gray-500">00:00:00</div>
+    </header>
+
+    <nav class="flex px-6 space-x-6 bg-[#0b1117] border-b border-[#1e293b]">
+        <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn active py-3 text-xs font-bold uppercase">Monitoring</button>
+        <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn py-3 text-xs font-bold text-gray-500 uppercase">Simulation</button>
+        <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn py-3 text-xs font-bold text-gray-500 uppercase">Accidents</button>
+    </nav>
+
+    <main class="flex-grow p-6">
+        <div id="tab1" class="h-full grid grid-cols-3 grid-rows-3 gap-4">
+            <div></div>
+            <div class="dashboard-border p-2 rounded-lg">
+                <video id="vid-top" src="video/north.mp4" loop muted playsinline></video>
+                <div class="flex justify-between mt-2 text-[10px] font-mono">
+                    <div class="flex space-x-1"><div id="tl-top-r" class="tl-light tl-red active"></div><div id="tl-top-g" class="tl-light tl-green"></div></div>
+                    <div>TIMER: <span id="timer-top">0</span>s</div>
+                </div>
+            </div>
+            <div></div>
+            <div class="dashboard-border p-2 rounded-lg">
+                <video id="vid-left" src="video/west.mp4" loop muted playsinline></video>
+                <div class="flex justify-between mt-2 text-[10px] font-mono">
+                    <div class="flex space-x-1"><div id="tl-left-r" class="tl-light tl-red active"></div><div id="tl-left-g" class="tl-light tl-green"></div></div>
+                    <div>TIMER: <span id="timer-left">0</span>s</div>
+                </div>
+            </div>
+            <div class="flex items-center justify-center opacity-10"><i class="fa-solid fa-plus text-5xl"></i></div>
+            <div class="dashboard-border p-2 rounded-lg">
+                <video id="vid-right" src="video/east.mp4" loop muted playsinline></video>
+                <div class="flex justify-between mt-2 text-[10px] font-mono">
+                    <div class="flex space-x-1"><div id="tl-right-r" class="tl-light tl-red active"></div><div id="tl-right-g" class="tl-light tl-green"></div></div>
+                    <div>TIMER: <span id="timer-right">0</span>s</div>
+                </div>
+            </div>
+            <div></div>
+            <div class="dashboard-border p-2 rounded-lg">
+                <video id="vid-bottom" src="video/south.mp4" loop muted playsinline></video>
+                <div class="flex justify-between mt-2 text-[10px] font-mono">
+                    <div class="flex space-x-1"><div id="tl-bottom-r" class="tl-light tl-red active"></div><div id="tl-bottom-g" class="tl-light tl-green"></div></div>
+                    <div>TIMER: <span id="timer-bottom">0</span>s</div>
+                </div>
+            </div>
+            <div></div>
+        </div>
+
+        <div id="tab2" class="hidden h-full">
+            <video id="vid-sim" src="video/stimualtion.mp4" loop muted playsinline class="rounded-xl border border-teal-500/20"></video>
+        </div>
+
+        <div id="tab3" class="hidden h-full">
+            <video id="vid-accident" src="video/accident.mp4" loop muted playsinline class="rounded-xl border border-red-500/20"></video>
+        </div>
+    </main>
+
+    <script>
+        const laneMap = { 0: 'top', 1: 'right', 2: 'bottom', 3: 'left' };
+        let socket;
+
+        function connect() {
+            // FIX: Use window.location.hostname to automatically find your server
+            const host = window.location.hostname || "localhost";
+            socket = new WebSocket(`ws://${host}:8000/ws/alerts`);
+
+            socket.onopen = () => {
+                document.getElementById('status').innerText = "ONLINE";
+                document.getElementById('status').className = "text-green-500";
+            };
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.event === "TRAFFIC_UPDATE") {
+                    const lane = laneMap[data.lane_id];
+                    document.getElementById(`timer-${lane}`).innerText = data.timer;
+                    
+                    const vid = document.getElementById(`vid-${lane}`);
+                    const red = document.getElementById(`tl-${lane}-r`);
+                    const green = document.getElementById(`tl-${lane}-g`);
+
+                    if (data.state === "GREEN") {
+                        green.classList.add('active');
+                        red.classList.remove('active');
+                        vid.play().catch(()=>{}); // Unfreeze
+                    } else {
+                        red.classList.add('active');
+                        green.classList.remove('active');
+                        vid.pause(); // Freeze on red
+                    }
+                }
+                if (data.event === "ACCIDENT_DETECTED") {
+                    switchTab('tab3');
+                    document.getElementById('vid-accident').play();
+                }
+            };
+
+            socket.onclose = () => {
+                setTimeout(connect, 2000); // Auto-reconnect
+            };
+        }
+
+        function startSystem() {
+            document.getElementById('unlock-overlay').style.display = 'none';
+            // Start clock
+            setInterval(() => {
+                document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+            }, 1000);
+            
+            // Prime all videos (Browser requirement)
+            ['vid-top', 'vid-right', 'vid-bottom', 'vid-left', 'vid-sim', 'vid-accident'].forEach(id => {
+                const v = document.getElementById(id);
+                v.play().then(() => v.pause()).catch(e => console.log(e));
+            });
+            
+            connect();
+        }
+
+        function switchTab(id) {
+            ['tab1', 'tab2', 'tab3'].forEach(t => document.getElementById(t).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-teal-400'));
+            document.getElementById('btn-'+id).classList.add('active', 'text-teal-400');
+            
+            if(id === 'tab2') document.getElementById('vid-sim').play();
+        }
+    </script>
+</body>
+</html>
