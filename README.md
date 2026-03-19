@@ -39,24 +39,6 @@ The system leverages computer vision models for traffic density estimation, emer
 -> Displays emergency states and alerts
 -> Prototype implementation (requires further stabilization)
 
-🏗️ System Architecture
-          +----------------------+
-          |   Central Server     |
-          |      (FastAPI)       |
-          +----------+-----------+
-                     |
-     --------------------------------------
-     |                |                   |
-+---------+     +---------+        +---------+
-| Square A|     | Square B|  ...   | Square C|
-+---------+     +---------+        +---------+
-     |                |                   |
- Video Feed      Video Feed         Video Feed
-     |                |                   |
- YOLO Models     YOLO Models        YOLO Models
-     |                |                   |
- Signal Control  Signal Control     Signal Control
-
 **4. System Workflow**
 
 4.1. Video Acquisition
