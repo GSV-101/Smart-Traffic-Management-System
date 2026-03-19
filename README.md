@@ -107,7 +107,7 @@ The system leverages computer vision models for traffic density estimation, emer
 -> Backend: FastAPI
 -> Concurrency: Python threading
 -> Communication: REST APIs + WebSockets
--> Frontend: HTML-based dashboard , TailWing
+-> Frontend: HTML-based dashboard , Tailwind CSS, JavaScript
 
 **9. Current Limitations**
 
