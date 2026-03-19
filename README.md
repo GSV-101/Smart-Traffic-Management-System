@@ -90,54 +90,18 @@ The system leverages computer vision models for traffic density estimation, emer
 -> Emergency propagation to nearby intersections
 -> WebSocket-based real-time communication
 
-**6. Project Structure**
-Traffic_Management_Prayatna/
-│
-├── Models/
-│   ├── yolov8n.pt
-│   ├── best_accident.pt
-│   ├── best_ambulance.pt
-│   └── yolov11n.pt
-│
-├── Phase_Folder/
-│   ├── phase.py
-│   ├── phase_schedular.py
-│   └── VideoThread.py
-│
-├── Traffic_Mode/
-│   ├── Normal_Mode/
-│   │   └── Optimization_And_Detection/
-│   │       └── normal_logic.py
-│   │
-│   └── Emergency_Mode/
-│       └── Optimization_And_Detection/
-│           └── emergency_logic.py
-│
-├── video/
-│   ├── north.mp4
-│   ├── south.mp4
-│   ├── east.mp4
-│   ├── west.mp4
-│   ├── accident.mp4
-│   └── stimulation.mp4
-│
-├── server.py
-├── main.py
-├── index.html
-└── README.md
-
-**7. Model Details**
+**6. Model Details**
 -> Base Model: YOLOv8n
 -> Custom Models:
   Accident Detection → best_accident.pt
   Ambulance Detection → best_ambulance.pt
   
-**8. Training Characteristics**
+**7. Training Characteristics**
 -> Lightweight architecture for real-time inference
 -> Optimized for low latency and multi-threaded processing
 -> Designed for urban traffic scenarios
 
-**9. Tech Stack**
+**8. Tech Stack**
 -> Language: Python
 -> Computer Vision: YOLOv8 (Ultralytics)
 -> Backend: FastAPI
@@ -145,14 +109,14 @@ Traffic_Management_Prayatna/
 -> Communication: REST APIs + WebSockets
 -> Frontend: HTML-based dashboard , TailWing
 
-**10. Current Limitations**
+**9. Current Limitations**
 
 -> Dashboard requires improved synchronization and stability
 -> No persistent database (in-memory storage used)
 -> Network failures are not fully handled
 -> Model performance depends on dataset quality and environment
 
-**11. Future Enhancements**
+**10. Future Enhancements**
 
 -> Integration with live GPS-based ambulance tracking
 -> Edge deployment (Jetson Nano / Raspberry Pi)
